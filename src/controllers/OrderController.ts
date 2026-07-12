@@ -107,7 +107,9 @@ const createCheckoutSession = async (req: Request, res: Response) => {
     res.json({ url: session.url });
   } catch (error: any) {
     console.log(error);
-    res.status(500).json({ message: error.raw.message });
+    const message =
+      error?.raw?.message || error?.message || "Something went wrong";
+    res.status(500).json({ message });
   }
 };
 
