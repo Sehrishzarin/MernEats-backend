@@ -12,7 +12,7 @@ const getRestaurant = async (req: Request, res: Response) => {
 
     res.json(restaurant);
   } catch (error) {
-    console.log(error);
+    console.error("Error in getRestaurant:", error);
     res.status(500).json({ message: "something went wrong" });
   }
 };
@@ -28,18 +28,8 @@ const searchRestaurant = async (req: Request, res: Response) => {
 
     let query: any = {};
 
+    // Use a case-insensitive regex for the city
     query["city"] = new RegExp(city, "i");
-    const cityCheck = await Restaurant.countDocuments(query);
-    if (cityCheck === 0) {
-      return res.status(404).json({
-        data: [],
-        pagination: {
-          total: 0,
-          page: 1,
-          pages: 1,
-        },
-      });
-    }
 
     if (selectedCuisines) {
       const cuisinesArray = selectedCuisines
@@ -60,7 +50,7 @@ const searchRestaurant = async (req: Request, res: Response) => {
     const pageSize = 10;
     const skip = (page - 1) * pageSize;
 
-    // sortOption = "lastUpdated"
+    // Fetch restaurants and total count
     const restaurants = await Restaurant.find(query)
       .sort({ [sortOption]: 1 })
       .skip(skip)
@@ -78,9 +68,10 @@ const searchRestaurant = async (req: Request, res: Response) => {
       },
     };
 
-    res.json(response);
+    // Return 200 even if no restaurants are found, to avoid 404 errors
+    res.status(200).json(response);
   } catch (error) {
-    console.log(error);
+    console.error("Error in searchRestaurant:", error);
     res.status(500).json({ message: "Something went wrong" });
   }
 };
